@@ -1,0 +1,16 @@
+{
+  "sun": {
+    "label": "Sun",
+    "mass": 1.989e30,
+    "radius": 6.96342e8,
+    "position": [ 0.0, 0.0, 0.0 ],
+    "velocity": [ 0.0, 0.0, 0.0 ]
+  },
+  "earth": {
+    "label": "Earth",
+    "mass": 5.972e24,
+    "radius": 6.371e6,
+    "position": [ 1.496e11, 0.0, 0.0 ],
+    "velocity": [ 0.0, 2.978e4, 0.0 ]
+    }
+}

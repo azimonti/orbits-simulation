@@ -1,0 +1,86 @@
+{
+  "bodies" : ["sun", "mercury","venus", "earth", "mars"],
+  "bodies_all" : ["sun", "mercury","venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"],
+  "sun": {
+    "label": "Sun",
+    "mass": 1.989e30,
+    "scale": 1.5,
+    "color": [1, 1, 0],
+    "radius": 6.96342e8,
+    "position": [ 0.0, 0.0, 0.0 ],
+    "velocity": [ 0.0, 0.0, 0.0 ]
+  },
+  "mercury": {
+    "label": "Mercury",
+    "mass": 3.301e23,
+    "scale": 2.7,
+    "color": [0.662, 0.662, 0.662],
+    "radius": 2.4397e6,
+    "position": [5.791e10, 0.0, 0.0],
+    "velocity": [0.0, 4.74e4, 0.0]
+  },
+  "venus": {
+    "label": "Venus",
+    "mass": 4.867e24,
+    "scale": 2.7,
+    "color": [1.0, 0.8, 0.6],
+    "radius": 6.0518e6,
+    "position": [1.082e11, 0.0, 0.0],
+    "velocity": [0.0, 3.502e4, 0.0]
+  },
+  "earth": {
+    "label": "Earth",
+    "mass": 5.972e24,
+    "scale": 2.7,
+    "color": [0, 0, 1],
+    "radius": 6.371e6,
+    "position": [ 1.496e11, 0.0, 0.0 ],
+    "velocity": [ 0.0, 2.978e4, 0.0 ]
+  },
+
+  "mars": {
+    "label": "Mars",
+    "mass": 6.4171e23,
+    "scale": 2.7,
+    "color": [1.0, 0.0, 0.0],
+    "radius": 3.3895e6,
+    "position": [2.279e11, 0.0, 0.0],
+    "velocity": [0.0, 2.407e4, 0.0]
+  },
+  "jupiter": {
+    "label": "Jupiter",
+    "mass": 1.898e27,
+    "scale": 2.7,
+    "color": [1.0, 0.5, 0.0],
+    "radius": 6.9911e7,
+    "position": [7.785e11, 0.0, 0.0],
+    "velocity": [0.0, 1.307e4, 0.0]
+  },
+  "saturn": {
+    "label": "Saturn",
+    "mass": 5.683e26,
+    "scale": 2.7,
+    "color": [0.87, 0.72, 0.53],
+    "radius": 5.8232e7,
+    "position": [1.429e12, 0.0, 0.0],
+    "velocity": [0.0, 9.68e3, 0.0]
+  },
+  "uranus": {
+    "label": "Uranus",
+    "mass": 8.681e25,
+    "scale": 2.7,
+    "color": [0.53, 0.81, 0.92],
+    "radius": 2.5362e7,
+    "position": [2.871e12, 0.0, 0.0],
+    "velocity": [0.0, 6.80e3, 0.0]
+  },
+  "neptune": {
+    "label": "Neptune",
+    "mass": 1.024e26,
+    "scale": 2.7,
+    "color": [0.25, 0.41, 0.88],
+    "radius": 2.4622e7,
+    "position": [4.495e12, 0.0, 0.0],
+    "velocity": [0.0, 5.43e3, 0.0]
+  }
+}

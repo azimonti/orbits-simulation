@@ -4,11 +4,13 @@ import sys
 
 class Body:
     def __init__(self, name='', radius=0, mass=0, scale=1,
+                 color=np.zeros(3),
                  position=np.zeros(3), velocity=np.zeros(3)):
         self._name = name
         self._radius = radius
         self._mass = mass
         self._scale = scale
+        self._color = color
         self._position = position
         self._velocity = velocity
 
@@ -27,6 +29,11 @@ class Body:
     @property
     def mass_plot(self):
         return np.log(self._mass) / np.log(self._scale)
+
+    @property
+    def color(self):
+        return self._color
+
 
     @property
     def position(self):

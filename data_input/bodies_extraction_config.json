@@ -1,0 +1,46 @@
+{
+  "api_version" : "1.2",
+  "bodies" : ["mercury"],
+  "bodies" : ["mercury","venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"],
+  "bodies_all" : ["mercury","venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"],
+  "start_date": "2024-01-01 0:00:00",
+  "end_date": "2024-01-01 0:01:00",
+  "step": "1m",
+  "center" : "sun",
+  "sun": {
+    "label": "Sun",
+    "code": "500@10"
+  },
+  "mercury": {
+    "label": "Mercury",
+    "code": "199"
+  },
+  "venus": {
+    "label": "Venus",
+    "code": "299"
+  },
+  "earth": {
+    "label": "Earth",
+    "code": "399"
+  },
+  "mars": {
+    "label": "Mars",
+    "code": "499"
+  },
+  "jupiter": {
+    "label": "Jupiter",
+    "code": "599"
+  },
+  "saturn": {
+    "label": "Saturn",
+    "code": "699"
+  },
+  "uranus": {
+    "label": "Uranus",
+    "code": "799"
+  },
+  "neptune": {
+    "label": "Neptune",
+    "code": "899"
+  }
+}

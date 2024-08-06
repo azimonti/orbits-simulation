@@ -14,8 +14,8 @@ from types import SimpleNamespace
 cfg = SimpleNamespace(
     # time_span=(0, 3.154e7),  # 1 year in seconds
     time_span=(0, 6.308e7),   # 2 year in seconds
-    save_anim=False,          # save the animation
-    animation_format='mp4',   # animation format (mp4 or gif)
+    save_anim=True,           # save the animation
+    animation_format='gif',   # animation format (mp4 or gif)
     fps=30,                   # frame per second
     useRK45=True,             # use RK45
     verbose=True,             # verbose output
@@ -118,7 +118,7 @@ class SolarSystemSimulation:
         return self._bodies
 
     def create_bodies(self):
-        with open('data_input/bodies_2Dplane.json', 'r') as file:
+        with open('data_input/bodies_3D.json', 'r') as file:
             data_dict = json.load(file)
         for n in data_dict["bodies"]:
             b = json.loads(json.dumps(data_dict[n]),
@@ -143,7 +143,7 @@ class SolarSystemSimulation:
             solution = solve_ivp(n_body_problem, cfg.time_span,
                                  initial_conditions, args=(masses,),
                                  method='RK45', t_eval=t_eval,
-                                 max_step=10 * cst.day_in_seconds)
+                                 max_step=cst.day_in_seconds)
             self._positions = solution.y[:num_bodies * 3].reshape(
                 (num_bodies, 3, -1))
             self._velocities = solution.y[num_bodies * 3:].reshape(

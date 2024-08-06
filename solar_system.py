@@ -15,12 +15,15 @@ cfg = SimpleNamespace(
     # time_span=(0, 3.154e7),  # 1 year in seconds
     time_span=(0, 6.308e7),   # 2 year in seconds
     save_anim=True,           # save the animation
-    animation_format='gif',   # animation format (mp4 or gif)
+    animation_format='mp4',   # animation format (mp4 or gif)
     fps=30,                   # frame per second
     useRK45=True,             # use RK45
     verbose=True,             # verbose output
     use_yukawa=False,         # use Yukawa potential
-    yukawa_coeff=1.5e15       # Yukawa potential coefficient
+    yukawa_coeff=1.5e15,      # Yukawa potential coefficient
+    plot_orbits=True,         # plot the orbits
+    project_orbits_2d=True,   # plot the orbits on the bottom
+    project_2d=True           # project on the bottom of the grid
 )
 
 
@@ -74,7 +77,7 @@ def gravitational_force_yukawa(m1, m2, r_ij):
     """Compute the gravitational force between two masses using Yukawa
     gravitational law."""
     r = np.linalg.norm(r_ij)
-    return cst.G * m1 * m2 * r_ij / r**3 * (1 + r_ij/cfg.yukawa_coeff) * \
+    return cst.G * m1 * m2 * r_ij / r**3 * (1 + r_ij / cfg.yukawa_coeff) * \
         np.exp(-r_ij / cfg.yukawa_coeff)
 
 
@@ -125,7 +128,7 @@ class SolarSystemSimulation:
                            object_hook=lambda d: SimpleNamespace(**d))
             self._bodies.append(
                 Body(name=b.label, radius=b.radius,
-                     mass=b.mass, scale=b.scale,  color=b.color,
+                     mass=b.mass, scale=b.scale, color=b.color,
                      position=b.position, velocity=b.velocity))
 
     def compute(self):
@@ -169,12 +172,18 @@ class SolarSystemSimulation:
         ax.zaxis._axinfo['grid'].update(
             {"linewidth": 0.1, "color": (0, 0, 0), 'linestyle': '--'})
 
-        ax.xaxis.line.set_color((0.65, 0.65, 0.65, 1.0))
-        ax.yaxis.line.set_color((0.65, 0.65, 0.65, 1.0))
-        ax.zaxis.line.set_color((0.65, 0.65, 0.65, 1.0))
+        ax.xaxis.line.set_color((0.0, 0.0, 0.0, 1.0))
+        ax.xaxis.line.set_linewidth(1.0)
+        ax.yaxis.line.set_color((0.0, 0.0, 0.0, 1.0))
+        ax.yaxis.line.set_linewidth(1.0)
+        ax.zaxis.line.set_color((0.0, 0.0, 0.0, 1.0))
+        ax.zaxis.line.set_linewidth(1.0)
         ax.set_xlabel('', fontsize=10)
         ax.set_ylabel('', fontsize=10)
         ax.set_zlabel('', fontsize=10)
+        ax.tick_params(axis='x', color='w')
+        ax.tick_params(axis='y', color='w')
+        ax.tick_params(axis='z', color='w')
 
         def format_func(value, tick_number):
             # define a function to format the tick labels blank so tight_layout
@@ -184,31 +193,56 @@ class SolarSystemSimulation:
         ax.xaxis.set_major_formatter(FuncFormatter(format_func))
         ax.yaxis.set_major_formatter(FuncFormatter(format_func))
         ax.zaxis.set_major_formatter(FuncFormatter(format_func))
+        ax.tick_params(axis='x', which='both', width=0.1, length=5)
+        ax.tick_params(axis='y', which='both', width=0.1, length=5)
+        ax.tick_params(axis='z', which='both', width=0.1, length=5)
+        ax.xaxis.set_tick_params(width=5)
+        ax.yaxis.set_tick_params(width=5)
+
         plt.tight_layout()
 
     def animate(self):
         self.perc = 0
-        fig = plt.figure()
+        if cfg.save_anim:
+            fig = plt.figure(figsize=(12, 8), dpi=300)
+        else:
+            fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection='3d')
         self.create_axes(ax)
         self._scat = []
+        self._scat2 = []
+        distances = [np.linalg.norm(body.position) for body in self._bodies]
+        self.axs_limit = 1.1 * max(distances)
         for index, body in enumerate(self._bodies):
             self._scat.append(
                 ax.scatter([body.position[0]], [body.position[1]],
                            [body.position[2]],
                            color=body.color, s=body.mass_plot,
                            label=body.name, marker='o', zorder=index))
+            if cfg.project_2d:
+                self._scat2.append(
+                    ax.scatter([body.position[0]], [body.position[1]],
+                               -self.axs_limit,
+                               color=(.5, .5, .5), s=body.mass_plot,
+                               label=body.name, marker='o', zorder=index))
+            if cfg.plot_orbits:
+                x_positions = self._positions[index, 0, :]
+                y_positions = self._positions[index, 1, :]
+                if cfg.project_orbits_2d:
+                    z_positions = [-self.axs_limit] * len(x_positions)
+                else:
+                    z_positions = self._positions[index, 2, :]
+                ax.plot(
+                    x_positions, y_positions, z_positions,
+                    color=(.5, .5, .5), linewidth=0.8)
+        ax.set_xlim(-self.axs_limit, self.axs_limit)
+        ax.set_ylim(-self.axs_limit, self.axs_limit)
+        ax.set_zlim(-self.axs_limit, self.axs_limit)
+        scat_legend_handles = [scatter for scatter in self._scat]
+        ax.legend(handles=scat_legend_handles, fontsize=20, loc='upper right',
+                  bbox_to_anchor=(1.2, 1), frameon=False)
 
-        distance = np.linalg.norm(self._bodies[1].position)
-        distances = [np.linalg.norm(body.position) for body in self._bodies]
-        distance = 1.1 * max(distances)
-
-        ax.set_xlim(-distance, distance)
-        ax.set_ylim(-distance, distance)
-        ax.set_zlim(-distance, distance)
-        ax.legend()
-
-        def animate(frame):
+        def animate_frame(frame):
             if cfg.verbose:
                 perc = (frame + 1) / self._num_frames * 100
                 if perc // 10 > self.perc // 10:
@@ -219,13 +253,16 @@ class SolarSystemSimulation:
                 x, y, z = self._positions[i, :, frame]
                 # Update the scatter plot offsets for body i
                 self._scat[i]._offsets3d = ([x], [y], [z])
-            return self._scat,
+                if cfg.project_2d:
+                    self._scat2[i]._offsets3d = (
+                        [x], [y], [-self.axs_limit])
+            return self._scat, self._scat2
 
         # len(self._positions[0][1]) is the x component of the first body
         self._num_frames = len(self._positions[0][1])
         anim = FuncAnimation(
-            fig, animate, frames=self._num_frames, interval=1000 / cfg.fps,
-            blit=True)
+            fig, animate_frame, frames=self._num_frames,
+            interval=1000 / cfg.fps, blit=True)
         if cfg.save_anim:
             base, ext = self.outfile.rsplit('.', 1)
             animation_format = cfg.animation_format

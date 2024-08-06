@@ -14,7 +14,7 @@
     "label": "Mercury",
     "mass": 3.301e23,
     "scale": 2.7,
-    "color": [0.662, 0.662, 0.662],
+    "color": [0, 1, 0],
     "radius": 2.4397e6,
     "position": [5.791e10, 0.0, 0.0],
     "velocity": [0.0, 4.74e4, 0.0]

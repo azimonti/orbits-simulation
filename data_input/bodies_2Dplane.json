@@ -37,7 +37,6 @@
     "position": [ 1.496e11, 0.0, 0.0 ],
     "velocity": [ 0.0, 2.978e4, 0.0 ]
   },
-
   "mars": {
     "label": "Mars",
     "mass": 6.4171e23,

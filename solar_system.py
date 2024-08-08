@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+'''
+/**********************/
+/*  solar_system.py   */
+/*    Version 1.0     */
+/*     2024/08/03     */
+/**********************/
+'''
 import argparse
 import json
 import matplotlib.pyplot as plt
@@ -18,6 +26,7 @@ cfg = SimpleNamespace(
     animation_format='mp4',   # animation format (mp4 or gif)
     fps=30,                   # frame per second
     useRK45=True,             # use RK45
+    step=86400,               # integration step 1 day
     verbose=True,             # verbose output
     use_yukawa=False,         # use Yukawa potential
     yukawa_coeff=1.5e15,      # Yukawa potential coefficient
@@ -28,8 +37,7 @@ cfg = SimpleNamespace(
 
 
 cst = SimpleNamespace(
-    G=6.67430e-11,
-    day_in_seconds=86400
+    G=6.67430e-11
 )
 
 
@@ -67,7 +75,7 @@ def runge_kutta4(f, y0, t0, tf, dt, args=()):
 
 
 def gravitational_force_newton(m1, m2, r_ij):
-    """Compute the gravitational force between two masses using Newtwon
+    """Compute the gravitational force between two masses using Newton
     gravitational law."""
     r = np.linalg.norm(r_ij)
     return cst.G * m1 * m2 * r_ij / r**3
@@ -77,8 +85,8 @@ def gravitational_force_yukawa(m1, m2, r_ij):
     """Compute the gravitational force between two masses using Yukawa
     gravitational law."""
     r = np.linalg.norm(r_ij)
-    return cst.G * m1 * m2 * r_ij / r**3 * (1 + r_ij / cfg.yukawa_coeff) * \
-        np.exp(-r_ij / cfg.yukawa_coeff)
+    return cst.G * m1 * m2 * r_ij / r**3 * (1 + r / cfg.yukawa_coeff) * \
+        np.exp(-r / cfg.yukawa_coeff)
 
 
 gravitational_force = gravitational_force_yukawa if cfg.use_yukawa else \
@@ -113,8 +121,8 @@ class SolarSystemSimulation:
     def __init__(self, outfile):
         self._bodies = []
         self._num_frames = 30
-        self.outfile = outfile
-        self.perc = None
+        self._outfile = outfile
+        self._perc = None
 
     @property
     def bodies(self):
@@ -132,7 +140,7 @@ class SolarSystemSimulation:
                      position=b.position, velocity=b.velocity))
 
     def compute(self):
-        t_eval = np.arange(0, cfg.time_span[1], cst.day_in_seconds)
+        t_eval = np.arange(0, cfg.time_span[1], cfg.step)
         # extract masses
         masses = np.array([body.mass for body in self._bodies])
         # flatten initial conditions using the `position` #
@@ -146,7 +154,7 @@ class SolarSystemSimulation:
             solution = solve_ivp(n_body_problem, cfg.time_span,
                                  initial_conditions, args=(masses,),
                                  method='RK45', t_eval=t_eval,
-                                 max_step=cst.day_in_seconds)
+                                 max_step=cfg.step)
             self._positions = solution.y[:num_bodies * 3].reshape(
                 (num_bodies, 3, -1))
             self._velocities = solution.y[num_bodies * 3:].reshape(
@@ -154,7 +162,7 @@ class SolarSystemSimulation:
         else:
             t, y = runge_kutta4(n_body_problem, initial_conditions,
                                 cfg.time_span[0], cfg.time_span[1],
-                                cst.day_in_seconds, args=(masses,))
+                                cfg.step, args=(masses,))
             self._positions = y[:num_bodies * 3].reshape((num_bodies, 3, -1))
             self._velocities = y[num_bodies * 3:].reshape((num_bodies, 3, -1))
 
@@ -202,7 +210,7 @@ class SolarSystemSimulation:
         plt.tight_layout()
 
     def animate(self):
-        self.perc = 0
+        self._perc = 0
         if cfg.save_anim:
             fig = plt.figure(figsize=(12, 8), dpi=300)
         else:
@@ -245,8 +253,8 @@ class SolarSystemSimulation:
         def animate_frame(frame):
             if cfg.verbose:
                 perc = (frame + 1) / self._num_frames * 100
-                if perc // 10 > self.perc // 10:
-                    self.perc = perc
+                if perc // 10 > self._perc // 10:
+                    self._perc = perc
                     print(f"completed {int(perc)}% of the animation")
             for i in range(len(self._bodies)):
                 # Extract the positions for body i at the current frame
@@ -264,7 +272,7 @@ class SolarSystemSimulation:
             fig, animate_frame, frames=self._num_frames,
             interval=1000 / cfg.fps, blit=True)
         if cfg.save_anim:
-            base, ext = self.outfile.rsplit('.', 1)
+            base, ext = self._outfile.rsplit('.', 1)
             animation_format = cfg.animation_format
             outfile_a = f"{base}.{animation_format}"
             if animation_format == 'mp4':

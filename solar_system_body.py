@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+'''
+/************************/
+/* solar_system_body.py */
+/*    Version 1.0       */
+/*     2024/08/03       */
+/************************/
+'''
 import numpy as np
 import sys
 

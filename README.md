@@ -28,6 +28,10 @@ To get started with these simulations:
    python solar_system.py
    ```
 
+## Yukawa Potential
+
+Yukawa potential (a potential which has an exponential decay in addition to the standard Newtonian gravitational force) is also simulated between the Sun and the Earth, but the change in orbit is minimal (no change up to 7 significant digits).
+
 ## Contributing
 
 Contributions to the Orbits Simulation project are welcome. Whether it's through submitting bug reports, proposing new features, or contributing to the code, your help is appreciated. For major changes, please open an issue first to discuss what you would like to change.

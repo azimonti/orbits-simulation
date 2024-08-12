@@ -27,6 +27,11 @@ To get started with these simulations:
    ```
    python solar_system.py
    ```
+## 2 years simulation
+
+A simulation for 2 years starting from 1st January 2024 looks as follows.
+
+https://github.com/user-attachments/assets/b6108236-f331-4436-b769-5240a9f0c70a
 
 ## Yukawa Potential
 

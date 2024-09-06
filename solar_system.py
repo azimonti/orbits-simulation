@@ -220,8 +220,8 @@ class SolarSystemSimulation:
             scale2 = 20.0
         else:
             figsize = (1920 / dpi, 1080 / dpi)
-            scale1 = 1.0
-            scale2 = 1.0
+            scale1 = 2.0
+            scale2 = 10.0
         fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(111, projection='3d')
         self.create_axes(ax, scale1)

@@ -32,7 +32,9 @@ cfg = SimpleNamespace(
     yukawa_coeff=1.5e15,      # Yukawa potential coefficient
     plot_orbits=True,         # plot the orbits
     project_orbits_2d=True,   # plot the orbits on the bottom
-    project_2d=True           # project on the bottom of the grid
+    project_2d=True,          # project on the bottom of the grid
+    high_res_plot=True,       # enable high resolution simulation plot
+    fig_4k=True               # use 4k resolution
 )
 
 
@@ -166,7 +168,7 @@ class SolarSystemSimulation:
             self._positions = y[:num_bodies * 3].reshape((num_bodies, 3, -1))
             self._velocities = y[num_bodies * 3:].reshape((num_bodies, 3, -1))
 
-    def create_axes(self, ax):
+    def create_axes(self, ax, scale):
         ax.grid(True)
         ax.set_facecolor((1.0, 1.0, 1.0, 0.0))
         ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -174,18 +176,18 @@ class SolarSystemSimulation:
         ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
         plt.rcParams['lines.dashed_pattern'] = [20, 20]
         ax.xaxis._axinfo['grid'].update(
-            {"linewidth": 0.1, "color": (0, 0, 0), 'linestyle': '--'})
+            {"linewidth": scale * 0.5, "color": (0, 0, 0), 'linestyle': '--'})
         ax.yaxis._axinfo['grid'].update(
-            {"linewidth": 0.1, "color": (0, 0, 0), 'linestyle': '--'})
+            {"linewidth": scale * 0.5, "color": (0, 0, 0), 'linestyle': '--'})
         ax.zaxis._axinfo['grid'].update(
-            {"linewidth": 0.1, "color": (0, 0, 0), 'linestyle': '--'})
+            {"linewidth": scale * 0.5, "color": (0, 0, 0), 'linestyle': '--'})
 
         ax.xaxis.line.set_color((0.0, 0.0, 0.0, 1.0))
-        ax.xaxis.line.set_linewidth(1.0)
+        ax.xaxis.line.set_linewidth(scale * 1.0)
         ax.yaxis.line.set_color((0.0, 0.0, 0.0, 1.0))
-        ax.yaxis.line.set_linewidth(1.0)
+        ax.yaxis.line.set_linewidth(scale * 1.0)
         ax.zaxis.line.set_color((0.0, 0.0, 0.0, 1.0))
-        ax.zaxis.line.set_linewidth(1.0)
+        ax.zaxis.line.set_linewidth(scale * 1.0)
         ax.set_xlabel('', fontsize=10)
         ax.set_ylabel('', fontsize=10)
         ax.set_zlabel('', fontsize=10)
@@ -211,12 +213,18 @@ class SolarSystemSimulation:
 
     def animate(self):
         self._perc = 0
-        if cfg.save_anim:
-            fig = plt.figure(figsize=(12, 8), dpi=300)
+        dpi = 300 if (cfg.high_res_plot and not cfg.save_anim) else 100
+        if cfg.fig_4k:
+            figsize = (3840 / dpi, 2160 / dpi)
+            scale1 = 4.0
+            scale2 = 20.0
         else:
-            fig = plt.figure(figsize=(12, 8))
+            figsize = (1920 / dpi, 1080 / dpi)
+            scale1 = 1.0
+            scale2 = 1.0
+        fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(111, projection='3d')
-        self.create_axes(ax)
+        self.create_axes(ax, scale1)
         self._scat = []
         self._scat2 = []
         distances = [np.linalg.norm(body.position) for body in self._bodies]
@@ -225,13 +233,13 @@ class SolarSystemSimulation:
             self._scat.append(
                 ax.scatter([body.position[0]], [body.position[1]],
                            [body.position[2]],
-                           color=body.color, s=body.mass_plot,
+                           color=body.color, s=scale2 * body.mass_plot,
                            label=body.name, marker='o', zorder=index))
             if cfg.project_2d:
                 self._scat2.append(
                     ax.scatter([body.position[0]], [body.position[1]],
                                -self.axs_limit,
-                               color=(.5, .5, .5), s=body.mass_plot,
+                               color=(.5, .5, .5), s=scale2 * body.mass_plot,
                                label=body.name, marker='o', zorder=index))
             if cfg.plot_orbits:
                 x_positions = self._positions[index, 0, :]
@@ -242,13 +250,13 @@ class SolarSystemSimulation:
                     z_positions = self._positions[index, 2, :]
                 ax.plot(
                     x_positions, y_positions, z_positions,
-                    color=(.5, .5, .5), linewidth=0.8)
+                    color=(.5, .5, .5), linewidth=scale1 * 0.8)
         ax.set_xlim(-self.axs_limit, self.axs_limit)
         ax.set_ylim(-self.axs_limit, self.axs_limit)
         ax.set_zlim(-self.axs_limit, self.axs_limit)
         scat_legend_handles = [scatter for scatter in self._scat]
-        ax.legend(handles=scat_legend_handles, fontsize=20, loc='upper right',
-                  bbox_to_anchor=(1.2, 1), frameon=False)
+        ax.legend(handles=scat_legend_handles, fontsize=scale1 * 20,
+                  loc='upper right', bbox_to_anchor=(1.2, 1), frameon=False)
 
         def animate_frame(frame):
             if cfg.verbose:
